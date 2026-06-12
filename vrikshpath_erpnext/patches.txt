@@ -1,0 +1,2 @@
+# Migration patches — add new patches here as schema evolves
+# Format: vrikshpath_erpnext.patches.v0_1.patch_name

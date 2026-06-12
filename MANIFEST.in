@@ -1,0 +1,3 @@
+include vrikshpath_erpnext/templates/*.html
+include vrikshpath_erpnext/templates/*.js
+recursive-include vrikshpath_erpnext *.json *.js *.css *.html *.csv *.md
