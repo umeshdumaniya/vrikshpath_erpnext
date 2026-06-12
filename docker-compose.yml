@@ -5,7 +5,6 @@ x-customizable-image: &customizable_image
   image: frappe/erpnext:version-15
   pull_policy: always
 
-# Used by worker services that depend on backend having written the bench config
 x-worker-defaults: &worker_defaults
   <<: *customizable_image
   restart: unless-stopped
@@ -40,12 +39,23 @@ services:
       start_period: 60s
     networks: [internal]
 
-  # ── Backend: runs bench config on startup, then serves ────────────────────
-  # Writing config here (instead of a separate configurator container) avoids
-  # Coolify treating the exited init container as a crash and loop-restarting.
+  # ── Backend ─────────────────────────────────────────────────────────────────
+  # Writes bench config on first start, then serves on port 8000.
+  # entrypoint: [bash, -c] bypasses docker-entrypoint.sh (same as upstream configurator).
   backend:
     <<: *customizable_image
     restart: unless-stopped
+    entrypoint: [bash, -c]
+    command:
+      - >
+        ls -1 apps > sites/apps.txt;
+        bench set-config -gy db_host mariadb;
+        bench set-config -gp db_port 3306;
+        bench set-config -gy redis_cache "redis://redis-cache:6379";
+        bench set-config -gy redis_queue "redis://redis-queue:6379";
+        bench set-config -gy redis_socketio "redis://redis-queue:6379";
+        bench set-config -gp socketio_port 9000;
+        exec bench serve --port 8000
     depends_on:
       mariadb:
         condition: service_healthy
@@ -53,24 +63,12 @@ services:
         condition: service_started
       redis-queue:
         condition: service_started
-    command:
-      - bash
-      - -c
-      - >
-        ls -1 apps > sites/apps.txt &&
-        bench set-config -gy db_host mariadb &&
-        bench set-config -gp db_port 3306 &&
-        bench set-config -gy redis_cache "redis://redis-cache:6379" &&
-        bench set-config -gy redis_queue "redis://redis-queue:6379" &&
-        bench set-config -gy redis_socketio "redis://redis-queue:6379" &&
-        bench set-config -gp socketio_port 9000 &&
-        exec bench serve --port 8000
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
     networks: [internal]
 
-  # ── Frontend: nginx proxy — exposed via Traefik → erp.prashang.com ────────
+  # ── Frontend: nginx — routed by Traefik to erp.prashang.com ─────────────────
   frontend:
     <<: *customizable_image
     restart: unless-stopped
@@ -113,7 +111,7 @@ services:
     <<: *worker_defaults
     command: bench schedule
 
-  # ── Redis ────────────────────────────────────────────────────────────────────
+  # ── Redis ─────────────────────────────────────────────────────────────────────
   redis-queue:
     image: redis:7-alpine
     restart: unless-stopped
@@ -128,13 +126,13 @@ services:
 
 networks:
   coolify:
-    external: true   # Coolify's Traefik proxy network — already exists on server
+    external: true   # Coolify's Traefik proxy network
   internal:
-    internal: true   # No outbound internet; all inter-service traffic only
+    internal: true   # No outbound internet; inter-service only
 
 volumes:
-  mariadb-data:      # persistent — all ERPNext data lives here — NEVER delete
-  sites:             # frappe site files, uploaded files, backups
+  mariadb-data:      # persistent — NEVER delete
+  sites:
   logs:
   redis-queue-data:
   redis-cache-data:
