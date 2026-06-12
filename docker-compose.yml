@@ -42,6 +42,7 @@ services:
       start_period: 30s
 
   # ── Init: configure bench settings before any service starts ────────────────
+  # Internal container addresses are hardcoded — only DB_PASSWORD is required from Coolify env
   configurator:
     <<: *customizable_image
     restart: "no"
@@ -54,17 +55,12 @@ services:
     command:
       - >
         ls -1 apps > sites/apps.txt;
-        bench set-config -gy db_host $$DB_HOST;
-        bench set-config -gp db_port $$DB_PORT;
-        bench set-config -gy redis_cache "redis://$$REDIS_CACHE";
-        bench set-config -gy redis_queue "redis://$$REDIS_QUEUE";
-        bench set-config -gy redis_socketio "redis://$$REDIS_QUEUE";
+        bench set-config -gy db_host mariadb;
+        bench set-config -gp db_port 3306;
+        bench set-config -gy redis_cache "redis://redis-cache:6379";
+        bench set-config -gy redis_queue "redis://redis-queue:6379";
+        bench set-config -gy redis_socketio "redis://redis-queue:6379";
         bench set-config -gp socketio_port 9000;
-    environment:
-      DB_HOST: ${DB_HOST:-mariadb}
-      DB_PORT: ${DB_PORT:-3306}
-      REDIS_CACHE: ${REDIS_CACHE:-redis-cache:6379}
-      REDIS_QUEUE: ${REDIS_QUEUE:-redis-queue:6379}
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
@@ -85,7 +81,7 @@ services:
     environment:
       BACKEND: backend:8000
       SOCKETIO: websocket:9000
-      FRAPPE_SITE_NAME_HEADER: ${FRAPPE_SITE_NAME_HEADER:-erp.prashang.com}
+      FRAPPE_SITE_NAME_HEADER: erp.prashang.com
       UPSTREAM_REAL_IP_ADDRESS: 127.0.0.1
       UPSTREAM_REAL_IP_HEADER: X-Forwarded-For
       UPSTREAM_REAL_IP_RECURSIVE: "off"
