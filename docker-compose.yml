@@ -1,7 +1,6 @@
-# ERPNext on Coolify via frappe_docker
-# Source: https://github.com/frappe/frappe_docker
-# Customized for VrikshPath / Prashang Technologies deployment
-# Domain: erp.prashang.com
+# ERPNext on Coolify — Prashang Technologies / VrikshPath ERP
+# Based on: https://github.com/frappe/frappe_docker
+# Domain: erp.prashang.com | Server: 192.168.80.10
 
 x-customizable-image: &customizable_image
   image: frappe/erpnext:version-15
@@ -20,9 +19,35 @@ x-backend-defaults: &backend_defaults
     - logs:/home/frappe/frappe-bench/logs
 
 services:
+
+  # ── Database ────────────────────────────────────────────────────────────────
+  mariadb:
+    image: mariadb:10.6
+    restart: unless-stopped
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --skip-character-set-client-handshake
+      - --skip-innodb-read-only-compressed
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: _frappe_placeholder
+    volumes:
+      - mariadb-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  # ── Init: configure bench settings before any service starts ────────────────
   configurator:
     <<: *customizable_image
     restart: "no"
+    depends_on:
+      mariadb:
+        condition: service_healthy
     entrypoint:
       - bash
       - -c
@@ -36,14 +61,15 @@ services:
         bench set-config -gy redis_socketio "redis://$$REDIS_QUEUE";
         bench set-config -gp socketio_port 9000;
     environment:
-      DB_HOST: ${DB_HOST}
-      DB_PORT: ${DB_PORT}
-      REDIS_CACHE: ${REDIS_CACHE}
-      REDIS_QUEUE: ${REDIS_QUEUE}
+      DB_HOST: ${DB_HOST:-mariadb}
+      DB_PORT: ${DB_PORT:-3306}
+      REDIS_CACHE: ${REDIS_CACHE:-redis-cache:6379}
+      REDIS_QUEUE: ${REDIS_QUEUE:-redis-queue:6379}
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
 
+  # ── ERPNext application services ─────────────────────────────────────────────
   backend:
     <<: *backend_defaults
     restart: unless-stopped
@@ -51,6 +77,9 @@ services:
   frontend:
     <<: *customizable_image
     restart: unless-stopped
+    depends_on:
+      - backend
+      - websocket
     command:
       - nginx-entrypoint.sh
     environment:
@@ -67,8 +96,6 @@ services:
       - logs:/home/frappe/frappe-bench/logs
     ports:
       - "8080:8080"
-    labels:
-      - "coolify.managed=true"
 
   websocket:
     <<: *depends_on_configurator
@@ -96,20 +123,22 @@ services:
     restart: unless-stopped
     command: bench schedule
 
+  # ── Redis ────────────────────────────────────────────────────────────────────
   redis-queue:
+    image: redis:7-alpine
     restart: unless-stopped
-    image: redis:alpine
     volumes:
       - redis-queue-data:/data
 
   redis-cache:
+    image: redis:7-alpine
     restart: unless-stopped
-    image: redis:alpine
     volumes:
       - redis-cache-data:/data
 
 volumes:
-  sites:
+  mariadb-data:      # persistent — all ERPNext data lives here — NEVER delete
+  sites:             # frappe site files, uploaded files, backups
   logs:
   redis-queue-data:
   redis-cache-data:
