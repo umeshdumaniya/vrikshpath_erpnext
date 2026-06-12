@@ -1,0 +1,115 @@
+# ERPNext on Coolify via frappe_docker
+# Source: https://github.com/frappe/frappe_docker
+# Customized for VrikshPath / Prashang Technologies deployment
+# Domain: erp.prashang.com
+
+x-customizable-image: &customizable_image
+  image: frappe/erpnext:version-15
+  pull_policy: always
+
+x-depends-on-configurator: &depends_on_configurator
+  depends_on:
+    configurator:
+      condition: service_completed_successfully
+
+x-backend-defaults: &backend_defaults
+  <<: *depends_on_configurator
+  <<: *customizable_image
+  volumes:
+    - sites:/home/frappe/frappe-bench/sites
+    - logs:/home/frappe/frappe-bench/logs
+
+services:
+  configurator:
+    <<: *customizable_image
+    restart: "no"
+    entrypoint:
+      - bash
+      - -c
+    command:
+      - >
+        ls -1 apps > sites/apps.txt;
+        bench set-config -gy db_host $$DB_HOST;
+        bench set-config -gp db_port $$DB_PORT;
+        bench set-config -gy redis_cache "redis://$$REDIS_CACHE";
+        bench set-config -gy redis_queue "redis://$$REDIS_QUEUE";
+        bench set-config -gy redis_socketio "redis://$$REDIS_QUEUE";
+        bench set-config -gp socketio_port 9000;
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      REDIS_CACHE: ${REDIS_CACHE}
+      REDIS_QUEUE: ${REDIS_QUEUE}
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+      - logs:/home/frappe/frappe-bench/logs
+
+  backend:
+    <<: *backend_defaults
+    restart: unless-stopped
+
+  frontend:
+    <<: *customizable_image
+    restart: unless-stopped
+    command:
+      - nginx-entrypoint.sh
+    environment:
+      BACKEND: backend:8000
+      SOCKETIO: websocket:9000
+      FRAPPE_SITE_NAME_HEADER: ${FRAPPE_SITE_NAME_HEADER:-erp.prashang.com}
+      UPSTREAM_REAL_IP_ADDRESS: 127.0.0.1
+      UPSTREAM_REAL_IP_HEADER: X-Forwarded-For
+      UPSTREAM_REAL_IP_RECURSIVE: "off"
+      PROXY_READ_TIMEOUT: 120
+      CLIENT_MAX_BODY_SIZE: 50m
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+      - logs:/home/frappe/frappe-bench/logs
+    ports:
+      - "8080:8080"
+    labels:
+      - "coolify.managed=true"
+
+  websocket:
+    <<: *depends_on_configurator
+    <<: *customizable_image
+    restart: unless-stopped
+    command:
+      - node
+      - /home/frappe/frappe-bench/apps/frappe/socketio.js
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+      - logs:/home/frappe/frappe-bench/logs
+
+  queue-short:
+    <<: *backend_defaults
+    restart: unless-stopped
+    command: bench worker --num-workers 2 --queue short,default
+
+  queue-long:
+    <<: *backend_defaults
+    restart: unless-stopped
+    command: bench worker --num-workers 1 --queue long
+
+  scheduler:
+    <<: *backend_defaults
+    restart: unless-stopped
+    command: bench schedule
+
+  redis-queue:
+    restart: unless-stopped
+    image: redis:alpine
+    volumes:
+      - redis-queue-data:/data
+
+  redis-cache:
+    restart: unless-stopped
+    image: redis:alpine
+    volumes:
+      - redis-cache-data:/data
+
+volumes:
+  sites:
+  logs:
+  redis-queue-data:
+  redis-cache-data:
