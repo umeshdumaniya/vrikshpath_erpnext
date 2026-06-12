@@ -90,8 +90,8 @@ services:
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
-    ports:
-      - "8080:8080"
+    expose:
+      - "8080"
 
   websocket:
     <<: *depends_on_configurator
