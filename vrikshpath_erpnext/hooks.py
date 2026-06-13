@@ -83,10 +83,17 @@ custom_fields = {
             "default": "0",
         },
         {
+            "fieldname": "heatsink_required",
+            "fieldtype": "Check",
+            "label": "Heatsink Required",
+            "insert_after": "esd_sensitive",
+            "default": "0",
+        },
+        {
             "fieldname": "datasheet_url",
             "fieldtype": "Data",
             "label": "Datasheet URL",
-            "insert_after": "esd_sensitive",
+            "insert_after": "heatsink_required",
         },
         {
             "fieldname": "pinout_image_url",
@@ -101,7 +108,49 @@ custom_fields = {
             "insert_after": "pinout_image_url",
             "description": "e.g. NOT 5V tolerant — destroys chip. Always check before wiring.",
         },
-    ]
+    ],
+    # ── Work Order rework / scrap tracking ────────────────────────────────────
+    # When a component burns during assembly (wrong polarity, ESD), record it so
+    # inventory + COGS stay correct instead of silently grabbing another part.
+    "Work Order": [
+        {
+            "fieldname": "section_vp_rework",
+            "fieldtype": "Section Break",
+            "label": "VrikshPath Rework / Scrap",
+            "insert_after": "qty",
+            "collapsible": 1,
+        },
+        {
+            "fieldname": "rework_occurred",
+            "fieldtype": "Check",
+            "label": "Rework / Scrap Occurred",
+            "insert_after": "section_vp_rework",
+            "default": "0",
+        },
+        {
+            "fieldname": "rework_component",
+            "fieldtype": "Link",
+            "label": "Scrapped Component",
+            "options": "Item",
+            "insert_after": "rework_occurred",
+            "depends_on": "rework_occurred",
+        },
+        {
+            "fieldname": "rework_qty",
+            "fieldtype": "Float",
+            "label": "Scrapped Qty",
+            "insert_after": "rework_component",
+            "depends_on": "rework_occurred",
+        },
+        {
+            "fieldname": "rework_reason",
+            "fieldtype": "Small Text",
+            "label": "Rework Reason",
+            "insert_after": "rework_qty",
+            "depends_on": "rework_occurred",
+            "description": "e.g. XL6019 burned — reverse polarity on bench",
+        },
+    ],
 }
 
 # ── Document lifecycle hooks ──────────────────────────────────────────────────

@@ -11,6 +11,7 @@
   "col_break_from", "wire_color", "wire_gauge_awg", "max_current_ma",
   "section_to", "to_item", "to_pin",
   "col_break_to", "pull_up_required", "pull_up_value_kohm",
+  "section_qa", "qa_checkpoint", "test_command", "test_pass_criteria",
   "section_verify", "verified_by", "verified_date",
   "col_break_verify", "damage_note", "notes"
  ],
@@ -37,6 +38,10 @@
   {"fieldname": "col_break_to", "fieldtype": "Column Break"},
   {"fieldname": "pull_up_required", "fieldtype": "Check", "label": "Pull-up Required", "default": 0},
   {"fieldname": "pull_up_value_kohm", "fieldtype": "Float", "label": "Pull-up Value (kΩ)", "depends_on": "pull_up_required", "description": "e.g. 4.7 for I2C"},
+  {"fieldname": "section_qa", "fieldtype": "Section Break", "label": "In-Process QA Gate", "description": "Test immediately after making this connection — catch wiring errors before doing 17 more steps."},
+  {"fieldname": "qa_checkpoint", "fieldtype": "Check", "label": "Mandatory QA Checkpoint", "default": 0, "in_list_view": 1, "description": "Stop and test before proceeding to the next wire"},
+  {"fieldname": "test_command", "fieldtype": "Small Text", "label": "Test Command", "depends_on": "qa_checkpoint", "description": "e.g. Run I2C scan, verify 0x4A appears"},
+  {"fieldname": "test_pass_criteria", "fieldtype": "Small Text", "label": "Pass Criteria", "depends_on": "qa_checkpoint", "description": "What the result MUST show to pass"},
   {"fieldname": "section_verify", "fieldtype": "Section Break", "label": "Verification"},
   {"fieldname": "verified_by", "fieldtype": "Data", "label": "Verified By"},
   {"fieldname": "verified_date", "fieldtype": "Date", "label": "Verified Date"},
