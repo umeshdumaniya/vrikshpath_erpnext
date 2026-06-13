@@ -68,7 +68,9 @@ services:
       - logs:/home/frappe/frappe-bench/logs
     networks: [internal]
 
-  # ── Frontend: nginx — routed by Traefik to erp.prashang.com ─────────────────
+  # ── Frontend: nginx — exposed on host:8086, routed by Caddy ─────────────────
+  # Caddy (swadhyay-os stack) reaches it via host.docker.internal:8086,
+  # same pattern as the FastAPI backend on host.docker.internal:8001.
   frontend:
     <<: *customizable_image
     restart: unless-stopped
@@ -83,17 +85,9 @@ services:
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
-    expose:
-      - "8080"
-    networks:
-      - internal
-      - coolify
-    labels:
-      traefik.enable: "true"
-      traefik.http.routers.vrikshpath-erp.rule: "Host(`erp.prashang.com`)"
-      traefik.http.routers.vrikshpath-erp.entrypoints: http
-      traefik.http.services.vrikshpath-erp.loadbalancer.server.port: "8080"
-      traefik.docker.network: coolify
+    ports:
+      - "8086:8080"
+    networks: [internal]
 
   websocket:
     <<: *worker_defaults
@@ -125,8 +119,6 @@ services:
     networks: [internal]
 
 networks:
-  coolify:
-    external: true   # Coolify's Traefik proxy network
   internal:
     internal: true   # No outbound internet; inter-service only
 
