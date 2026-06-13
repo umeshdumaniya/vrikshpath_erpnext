@@ -85,9 +85,11 @@ services:
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
-    ports:
-      - "8086:8080"
-    networks: [internal]
+    expose: ["8080"]
+    networks:
+      internal:
+      coolify:
+        aliases: [erp-frontend]
 
   websocket:
     <<: *worker_defaults
@@ -119,8 +121,10 @@ services:
     networks: [internal]
 
 networks:
+  coolify:
+    external: true
   internal:
-    internal: true   # No outbound internet; inter-service only
+    internal: true
 
 volumes:
   mariadb-data:      # persistent — NEVER delete
