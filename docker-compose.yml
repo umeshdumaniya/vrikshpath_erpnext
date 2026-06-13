@@ -2,8 +2,11 @@
 # Domain: erp.prashang.com | Server: 192.168.80.10
 
 x-customizable-image: &customizable_image
-  image: frappe/erpnext:version-15
-  pull_policy: always
+  # Custom image baked with frappe + erpnext fork + vrikshpath_erpnext.
+  # Built on the server (see scripts/erpbuild). pull_policy never = use local image,
+  # do not attempt to pull from a registry.
+  image: vrikshpath/erpnext:latest
+  pull_policy: never
 
 x-worker-defaults: &worker_defaults
   <<: *customizable_image
