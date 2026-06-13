@@ -1,0 +1,51 @@
+{
+ "actions": [],
+ "autoname": "DT-GJ-.#####",
+ "creation": "2026-06-13",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "technician_name", "mobile", "active", "col_break_1",
+  "customer", "district", "state",
+  "section_coverage", "service_radius_km", "home_village", "col_break_cov",
+  "iti_trade", "workshop_address",
+  "section_cert", "certified_products", "certification_date", "col_break_cert",
+  "training_completed_date", "training_notes",
+  "section_stats", "total_installations", "outstanding_commission_inr"
+ ],
+ "fields": [
+  {"fieldname": "technician_name", "fieldtype": "Data", "label": "Technician Name", "reqd": 1, "in_list_view": 1},
+  {"fieldname": "mobile", "fieldtype": "Data", "label": "Mobile", "reqd": 1, "in_list_view": 1},
+  {"fieldname": "active", "fieldtype": "Check", "label": "Active", "default": 1, "in_list_view": 1},
+  {"fieldname": "col_break_1", "fieldtype": "Column Break"},
+  {"fieldname": "customer", "fieldtype": "Link", "label": "ERPNext Customer", "options": "Customer", "description": "Link to their Customer record for purchase orders"},
+  {"fieldname": "district", "fieldtype": "Data", "label": "District", "reqd": 1},
+  {"fieldname": "state", "fieldtype": "Data", "label": "State", "default": "Gujarat"},
+  {"fieldname": "section_coverage", "fieldtype": "Section Break", "label": "Coverage Area"},
+  {"fieldname": "service_radius_km", "fieldtype": "Float", "label": "Service Radius (km)", "default": 30},
+  {"fieldname": "home_village", "fieldtype": "Data", "label": "Home Village / Town"},
+  {"fieldname": "col_break_cov", "fieldtype": "Column Break"},
+  {"fieldname": "iti_trade", "fieldtype": "Data", "label": "ITI Trade / Qualification", "description": "e.g. Electrician, Electronics, Mechanic"},
+  {"fieldname": "workshop_address", "fieldtype": "Small Text", "label": "Workshop Address"},
+  {"fieldname": "section_cert", "fieldtype": "Section Break", "label": "VrikshPath Certification"},
+  {"fieldname": "certified_products", "fieldtype": "Table MultiSelect", "label": "Certified Products", "options": "VrikshPath Product Line", "description": "Which product kits they are certified to install"},
+  {"fieldname": "certification_date", "fieldtype": "Date", "label": "Certification Date"},
+  {"fieldname": "col_break_cert", "fieldtype": "Column Break"},
+  {"fieldname": "training_completed_date", "fieldtype": "Date", "label": "Training Completed"},
+  {"fieldname": "training_notes", "fieldtype": "Small Text", "label": "Training Notes"},
+  {"fieldname": "section_stats", "fieldtype": "Section Break", "label": "Performance (Read-only)"},
+  {"fieldname": "total_installations", "fieldtype": "Int", "label": "Total Installations", "read_only": 1},
+  {"fieldname": "outstanding_commission_inr", "fieldtype": "Currency", "label": "Outstanding Commission (INR)", "read_only": 1}
+ ],
+ "links": [],
+ "modified": "2026-06-13",
+ "module": "VrikshPath",
+ "name": "Dealer Technician",
+ "permissions": [
+  {"role": "VrikshPath Manager", "read": 1, "write": 1, "create": 1, "delete": 1},
+  {"role": "VrikshPath Dealer", "read": 1},
+  {"role": "System Manager", "read": 1, "write": 1, "create": 1, "delete": 1}
+ ],
+ "title_field": "technician_name",
+ "track_changes": 1
+}

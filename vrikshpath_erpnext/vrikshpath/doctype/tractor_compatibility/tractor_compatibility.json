@@ -1,0 +1,49 @@
+{
+ "actions": [],
+ "autoname": "TC-.#####",
+ "creation": "2026-06-13",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "product", "tractor_make", "tractor_model", "col_break_1",
+  "tractor_hp_min", "tractor_hp_max", "steering_type",
+  "section_adapter", "adapter_item", "steering_col_dia_mm",
+  "col_break_2", "notes",
+  "section_test", "tested", "tested_by", "test_date",
+  "col_break_3", "test_cross_track_cm", "test_farm_location"
+ ],
+ "fields": [
+  {"fieldname": "product", "fieldtype": "Link", "label": "Product", "options": "VrikshPath Product Line", "reqd": 1, "in_list_view": 1},
+  {"fieldname": "tractor_make", "fieldtype": "Select", "label": "Tractor Make", "options": "Mahindra\nSonalika\nTAFE\nEicher\nJohn Deere\nNew Holland\nFarmatrac\nForce\nPowerTrac\nOther", "reqd": 1, "in_list_view": 1},
+  {"fieldname": "tractor_model", "fieldtype": "Data", "label": "Tractor Model", "reqd": 1, "in_list_view": 1, "description": "e.g. 575 DI, 585 DI, 7070"},
+  {"fieldname": "col_break_1", "fieldtype": "Column Break"},
+  {"fieldname": "tractor_hp_min", "fieldtype": "Float", "label": "HP Range Min"},
+  {"fieldname": "tractor_hp_max", "fieldtype": "Float", "label": "HP Range Max"},
+  {"fieldname": "steering_type", "fieldtype": "Select", "label": "Steering Type", "options": "Hydraulic\nElectric\nMechanical", "reqd": 1},
+  {"fieldname": "section_adapter", "fieldtype": "Section Break", "label": "Adapter / Mounting"},
+  {"fieldname": "adapter_item", "fieldtype": "Link", "label": "Adapter Item", "options": "Item", "description": "Steering column adapter bracket/kit for this tractor"},
+  {"fieldname": "steering_col_dia_mm", "fieldtype": "Float", "label": "Steering Column Dia (mm)", "description": "Measured OD of steering column where motor mounts"},
+  {"fieldname": "col_break_2", "fieldtype": "Column Break"},
+  {"fieldname": "notes", "fieldtype": "Small Text", "label": "Mounting Notes", "description": "Any known fitment quirks, bracket orientation, torque spec"},
+  {"fieldname": "section_test", "fieldtype": "Section Break", "label": "Field Test Record"},
+  {"fieldname": "tested", "fieldtype": "Check", "label": "Field Tested", "default": 0, "in_list_view": 1},
+  {"fieldname": "tested_by", "fieldtype": "Data", "label": "Tested By (Farmer / Tech)"},
+  {"fieldname": "test_date", "fieldtype": "Date", "label": "Test Date"},
+  {"fieldname": "col_break_3", "fieldtype": "Column Break"},
+  {"fieldname": "test_cross_track_cm", "fieldtype": "Float", "label": "XTE Achieved (cm)", "description": "Cross-track error measured in field test"},
+  {"fieldname": "test_farm_location", "fieldtype": "Data", "label": "Test Location (village / farm)"}
+ ],
+ "links": [],
+ "modified": "2026-06-13",
+ "module": "VrikshPath",
+ "name": "Tractor Compatibility",
+ "permissions": [
+  {"role": "VrikshPath Manager", "read": 1, "write": 1, "create": 1, "delete": 1},
+  {"role": "VrikshPath Assembler", "read": 1},
+  {"role": "VrikshPath Dealer", "read": 1},
+  {"role": "System Manager", "read": 1, "write": 1, "create": 1, "delete": 1}
+ ],
+ "sort_field": "tractor_make",
+ "sort_order": "ASC",
+ "track_changes": 1
+}

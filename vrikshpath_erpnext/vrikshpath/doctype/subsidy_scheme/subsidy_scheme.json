@@ -1,0 +1,44 @@
+{
+ "actions": [],
+ "autoname": "field:scheme_code",
+ "creation": "2026-06-13",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "scheme_code", "scheme_name", "administering_body", "col_break_1",
+  "subsidy_pct_individual", "subsidy_pct_fpo", "subsidy_pct_shg",
+  "section_limits", "max_subsidy_inr", "dgi_category_required", "dgi_category_code",
+  "col_break_2", "application_portal_url", "last_verified",
+  "section_products", "eligible_products",
+  "notes"
+ ],
+ "fields": [
+  {"fieldname": "scheme_code", "fieldtype": "Data", "label": "Scheme Code", "reqd": 1, "unique": 1, "in_list_view": 1, "description": "e.g. SMAM, CHC, KISAN-DRONE, AIF, ASPSG"},
+  {"fieldname": "scheme_name", "fieldtype": "Data", "label": "Scheme Name", "reqd": 1, "in_list_view": 1},
+  {"fieldname": "administering_body", "fieldtype": "Data", "label": "Administering Body", "description": "e.g. ICAR / DAC&FW / Gujarat Govt / NABARD"},
+  {"fieldname": "col_break_1", "fieldtype": "Column Break"},
+  {"fieldname": "subsidy_pct_individual", "fieldtype": "Percent", "label": "Subsidy % — Individual Farmer"},
+  {"fieldname": "subsidy_pct_fpo", "fieldtype": "Percent", "label": "Subsidy % — FPO/CHC"},
+  {"fieldname": "subsidy_pct_shg", "fieldtype": "Percent", "label": "Subsidy % — SHG / Women"},
+  {"fieldname": "section_limits", "fieldtype": "Section Break", "label": "Limits & Portal"},
+  {"fieldname": "max_subsidy_inr", "fieldtype": "Currency", "label": "Max Subsidy Amount (INR)"},
+  {"fieldname": "dgi_category_required", "fieldtype": "Check", "label": "DGI Category Required", "default": 0},
+  {"fieldname": "dgi_category_code", "fieldtype": "Data", "label": "DGI Category Code", "depends_on": "dgi_category_required"},
+  {"fieldname": "col_break_2", "fieldtype": "Column Break"},
+  {"fieldname": "application_portal_url", "fieldtype": "Data", "label": "Application Portal URL"},
+  {"fieldname": "last_verified", "fieldtype": "Date", "label": "Rules Last Verified", "description": "SMAM % change every year — verify by June each year"},
+  {"fieldname": "section_products", "fieldtype": "Section Break", "label": "Eligible VrikshPath Products"},
+  {"fieldname": "eligible_products", "fieldtype": "Table", "label": "Eligible Products", "options": "Subsidy Scheme Product"},
+  {"fieldname": "notes", "fieldtype": "Small Text", "label": "Notes"}
+ ],
+ "links": [],
+ "modified": "2026-06-13",
+ "module": "VrikshPath",
+ "name": "Subsidy Scheme",
+ "naming_rule": "By fieldname",
+ "permissions": [
+  {"role": "VrikshPath Manager", "read": 1, "write": 1, "create": 1, "delete": 1},
+  {"role": "System Manager", "read": 1, "write": 1, "create": 1, "delete": 1}
+ ],
+ "track_changes": 1
+}
