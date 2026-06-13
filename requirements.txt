@@ -1,1 +1,2 @@
-frappe
+# Frappe and ERPNext are provided by the bench — do NOT list them here.
+# Add only third-party PyPI dependencies this app needs.
