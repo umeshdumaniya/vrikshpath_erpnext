@@ -1,7 +1,7 @@
 // VrikshPath Installation — client script
 // Auto-checks RTK coverage from the VrikshPath CORS API when lat/lng are set.
 
-const CORS_API = "https://api.prashang.com/geo/cors/nearby";
+const CORS_API = "https://api.prashang.com/m19/geo/cors/nearby";
 const COVERAGE_RADIUS_KM = 60;
 
 frappe.ui.form.on("VrikshPath Installation", {
